@@ -1,4 +1,4 @@
-import { logger } from './logger';
+import { logger } from '../../common/logger';
 
 /**
  * Express middleware for logging errors.

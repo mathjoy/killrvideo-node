@@ -5,7 +5,7 @@ import { createServer } from 'http';
 import morgan from 'morgan';
 
 import { KillrVideoRouter } from './routes/killrvideo-router';
-import { logger } from './logging/logger';
+import { logger } from '../common/logger';
 import { logErrors } from './logging/express-logger';
 
 /**
