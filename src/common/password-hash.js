@@ -41,6 +41,7 @@ export function createHash(password) {
  * 
  * @param {string} password - The password to validate.
  * @param {string} goodHash - A good hash to compare the password to.
+ * @returns {Promise.<boolean>} True if the password is valid otherwise false.
  */
 export function validatePassword(password, goodHash) {
   // Split the hash into its parts and transform the strings into something useful

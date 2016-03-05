@@ -1,4 +1,5 @@
 import Promise from 'bluebird';
+
 import { cassandra } from '../common/cassandra';
 import { createHash, validatePassword } from '../common/password-hash';
 
@@ -11,8 +12,17 @@ import { createHash, validatePassword } from '../common/password-hash';
  * @property {string} email - The user's email address
  */
 
-export function createUser(user) {
-  // TODO
+/**
+ * Creates a new user.
+ * 
+ * @param {UserProfile} user - The profile for the user to create
+ * @param {string} password - A password for the user
+ * @returns {Promise.<boolean>} True if the user was successfully created or false if a user with that email 
+ * address already exists.
+ */
+export function createUser(user, password) {
+  // TODO: Insert, need message bus to publish event
+  return Promise.reject(new Error('Not implemented'));
 };
 
 /**
@@ -21,18 +31,19 @@ export function createUser(user) {
  * 
  * @param {string} emailAddress - The email address to look the user up by.
  * @param {string} password - The password to verify.
- * @returns {Promise.<boolean>} Whether the password is valid.
+ * @returns {Promise.<string>} The user's id if valid or null if password is not valid.
  */
 export function verifyCredentials(emailAddress, password) {
   // Get the user's password from C* and verify
-  return cassandra
+  const getUser = cassandra
     .executeAsync('SELECT email, password, userid FROM user_credentials WHERE email = ?', [ emailAddress ])
-    .then(result => {
-      const row = result.first();
-      if (!row) return null;
-      
-      return validatePassword(password, row.password);
-    });
+    .then(result => result.first());
+    
+  const checkPassword = getUser.then(row => !row ? false : validatePassword(password, row.password));
+  
+  return Promise.join(getUser, checkPassword, (row, isValid) => {
+    return isValid ? row.userId : null;
+  });
 };
 
 /**

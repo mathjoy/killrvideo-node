@@ -47,8 +47,10 @@
     "cassandra-driver": "^3.0.1",
     "express": "^4.13.4",
     "falcor-express": "^0.1.2",
+    "falcor-json-graph": "^1.1.7",
     "falcor-router": "^0.3.0",
     "killrvideo-web": "https://github.com/LukeTillman/killrvideo-web/releases/download/v1.0.0-beta.1/killrvideo-web-1.0.0-beta.1.tgz",
+    "uuid": "^2.0.1",
     "winston": "^2.2.0"
   }
 }
