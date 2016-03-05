@@ -3,10 +3,24 @@ import bodyParser from 'body-parser';
 import { dataSourceRoute } from 'falcor-express';
 import { createServer } from 'http';
 import morgan from 'morgan';
+import session from 'express-session';
+import CassandraStore from 'cassandra-store';
+import passport from 'passport';
 
 import { KillrVideoRouter } from './routes/killrvideo-router';
 import { logger } from '../common/logger';
 import { logErrors } from './logging/express-logger';
+
+// Tell passport auth how to serialize and deserialize users
+passport.serializeUser(function(user, done) {
+  // Our code really just passes a uuid string for user, so just use it as-is
+  done(null, user);
+});
+
+passport.deserializeUser(function(id, done) {
+  // No deserialization necessary since we just work with a uuid string for a user
+  return done(null, id);
+});
 
 /**
  * Creates an http Server for serving KillrVideo web requests.
@@ -25,7 +39,16 @@ export function createWebServer() {
   // Falcor requests to model.json
   app.use('/model.json', [
     bodyParser.urlencoded({ extended: false }),
-    dataSourceRoute((req, res) => new KillrVideoRouter())
+    session({
+      name: 'killrvideo.sid',
+      store: new CassandraStore(/* TODO: Options */),
+      resave: false,
+      saveUninitialized: false,
+      secret: 'THIS SHOULD BE CONFIGURABLE' /* TODO */
+    }),
+    passport.initialize(),
+    passport.session(),
+    dataSourceRoute((req, res) => new KillrVideoRouter(req))
   ]);
   
   // All other requests serve up the index.html page

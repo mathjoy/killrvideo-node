@@ -2,14 +2,13 @@ import { ref as $ref, atom as $atom, error as $error } from 'falcor-json-graph';
 import uuid from 'uuid';
 import { getUserProfile, getUserProfiles, verifyCredentials, createUser } from './user-management';
 
-function mapUserProfile(props, userProfile) {
-  
-}
-
 /**
- * An array of falcor routes served by the users service.
+ * An array of falcor routes served by the user management service.
  */
 export const routes = [
+  /**
+   * Lookup users by their unique Id (a uuid string).
+   */
   {
     route: 'usersById[{keys:userIds}]["userId", firstName", "lastName", "email"]',
     get(pathSet) {
@@ -43,13 +42,28 @@ export const routes = [
       }, []);
     }
   },
+  
+  /**
+   * Get a reference to the current user.
+   */
   {
     route: 'currentUser',
     get(pathSet) {
-      // TODO: Get current user from cookie or whatever
-      throw new Error('Not implemented');
+      const userId = this.getCurrentUserId();
+      return [
+        { 
+          path: [ 'currentUser' ], 
+          value: userId === null
+            ? $atom()
+            : $ref([ 'usersById', userId ])
+        }
+      ];
     }
   },
+  
+  /**
+   * Log a user in.
+   */
   {
     route: 'currentUser.login',
     call(callPath, args) {
@@ -62,22 +76,30 @@ export const routes = [
           ];
         }
         
-        // TODO: Set whatever cookie, etc. we need for auth
-        return [
-          { path: [ 'currentUser' ], value: $ref([ 'usersById', userId ]) }
-        ];
+        // Set the current user id to log them in, then return the reference for falcor
+        return this.setCurrentUserId(userId)
+          .return([ { path: [ 'currentUser' ], value: $ref([ 'usersById', userId ]) } ]);
       });
     }
   },
+  
+  /**
+   * Log the current user out.
+   */
   {
     route: 'currentUser.logout',
     call(callPath, args) {
-      // TODO: Clear auth cookie or whatever we use for auth
+      // Just clear any login cookies and invalidate the falcor reference
+      this.clearCurrentUserId();
       return [
         { path: [ 'currentUser' ], invalidated: true }
       ];
     }
   },
+  
+  /**
+   * Register a new user
+   */
   {
     route: 'currentUser.register',
     call(callPath, args) {
@@ -90,6 +112,7 @@ export const routes = [
         email
       };
       
+      // Try to create the user
       return createUser(newUser, password).then(wasCreated => {
         if (wasCreated === false) {
           return [
@@ -97,10 +120,11 @@ export const routes = [
           ];
         }
         
-        // TODO: Set auth cookie to log them in or whatever we need
-        return [
-          { path: [ 'currentUser' ], value: $ref([ 'usersById', userId ]) }
-        ];
+        // Save the current user id to log them in, then return the reference
+        return this.setCurrentUserId(userId)
+          .return([
+            { path: [ 'currentUser' ], value: $ref([ 'usersById', userId ]) }
+          ]);
       });
     }
   }  
