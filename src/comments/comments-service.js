@@ -22,7 +22,7 @@ import { cassandra } from '../common/cassandra';
  * Gets a page of comments posted by a given user.
  * 
  * @param {string} userId - The user's id.
- * @param {int} pageSize - The number of comments to retrieve.
+ * @param {number} pageSize - The number of comments to retrieve.
  * @param {string} pagingToken - A token that indicates the current paging state.
  * @returns {Promise.<VideoComments>} A page of comments.
  */
@@ -45,7 +45,7 @@ export function getUserComments(userId, pageSize, pagingToken) {
  * Gets a page of comments for a given video.
  * 
  * @param {string} videoId - The video to retrieve the comments for.
- * @param {int} pageSize - The number of comments to retrieve.
+ * @param {number} pageSize - The number of comments to retrieve.
  * @param {string} pagingToken - A token representing the current paging state.
  * @returns {Promise.<VideoComments>} A page of comments. 
  */
