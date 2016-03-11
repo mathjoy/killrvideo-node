@@ -22,7 +22,7 @@ import { createHash, validatePassword } from '../common/password-hash';
  */
 export function createUser(user, password) {
   // TODO: Insert, need message bus to publish event
-  return Promise.reject(new Error('Not implemented'));
+  return Promise.reject(new Error('TODO: Not implemented'));
 };
 
 /**
