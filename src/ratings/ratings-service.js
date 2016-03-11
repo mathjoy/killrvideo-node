@@ -60,5 +60,5 @@ export function getUserRating(videoId, userId) {
  */
 export function rateVideo(videoId, userId, rating) {
   // TODO: Need message bus
-  return Promise.reject('TODO: Not implemented');
+  return Promise.reject(new Error('TODO: Not implemented'));
 };
